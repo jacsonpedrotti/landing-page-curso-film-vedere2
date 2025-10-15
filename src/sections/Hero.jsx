@@ -17,15 +17,18 @@ function Hero() {
     videoEl.muted = true
     videoEl.defaultMuted = true
     videoEl.volume = 0
+    videoEl.setAttribute('muted', 'true')
     
     // Tentar play imediatamente
     const tryPlay = async () => {
       try {
+        videoEl.muted = true
         await videoEl.play()
       } catch (err) {
         // Se falhar, tentar novamente quando o vídeo estiver pronto
         videoEl.addEventListener('canplay', async () => {
           try {
+            videoEl.muted = true
             await videoEl.play()
           } catch (e) {}
         }, { once: true })
@@ -38,6 +41,7 @@ function Hero() {
     // Tentar novamente quando carregar
     videoEl.addEventListener('loadeddata', tryPlay, { once: true })
     videoEl.addEventListener('canplay', tryPlay, { once: true })
+    videoEl.addEventListener('loadedmetadata', tryPlay, { once: true })
     
     // Tentar quando a página ficar visível
     const handleVisibilityChange = () => {
@@ -46,6 +50,9 @@ function Hero() {
       }
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Tentar após um pequeno delay para mobile
+    setTimeout(tryPlay, 100)
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)

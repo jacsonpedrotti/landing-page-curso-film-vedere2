@@ -12,13 +12,18 @@ function ChampionshipVideo() {
     videoEl.muted = true
     videoEl.defaultMuted = true
     videoEl.volume = 0
+    videoEl.setAttribute('muted', 'true')
 
     const tryPlay = async () => {
       try {
+        videoEl.muted = true
         await videoEl.play()
       } catch (err) {
         videoEl.addEventListener('canplay', async () => {
-          try { await videoEl.play() } catch (e) {}
+          try { 
+            videoEl.muted = true
+            await videoEl.play() 
+          } catch (e) {}
         }, { once: true })
       }
     }
@@ -26,11 +31,15 @@ function ChampionshipVideo() {
     tryPlay()
     videoEl.addEventListener('loadeddata', tryPlay, { once: true })
     videoEl.addEventListener('canplay', tryPlay, { once: true })
+    videoEl.addEventListener('loadedmetadata', tryPlay, { once: true })
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') tryPlay()
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Tentar após um pequeno delay para mobile
+    setTimeout(tryPlay, 100)
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
