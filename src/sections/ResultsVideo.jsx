@@ -78,6 +78,7 @@ function ResultsVideo() {
             autoPlay
             loop
             muted
+            controls
             playsInline
             webkit-playsinline="true"
             x5-playsinline="true"

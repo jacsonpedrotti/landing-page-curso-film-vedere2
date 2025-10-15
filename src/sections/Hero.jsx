@@ -142,6 +142,7 @@ function Hero() {
                 autoPlay
                 loop
                 muted
+                controls
                 playsInline
                 preload="auto"
                 ref={heroVideoRef}
