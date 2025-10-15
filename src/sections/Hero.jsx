@@ -110,9 +110,9 @@ function Hero() {
                 src={HERO_VIDEO_URL}
                 autoPlay
                 loop
-                controls
+                muted
                 playsInline
-                preload="metadata"
+                preload="auto"
                 ref={heroVideoRef}
                 webkit-playsinline="true"
                 x5-playsinline="true"
