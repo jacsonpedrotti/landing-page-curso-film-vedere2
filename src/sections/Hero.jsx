@@ -13,20 +13,25 @@ function Hero() {
     const videoEl = heroVideoRef.current
     if (!videoEl) return
 
-    // Configurações para autoplay em todos os dispositivos
+    // Configurações agressivas para autoplay em mobile
     videoEl.muted = true
     videoEl.defaultMuted = true
     videoEl.volume = 0
     videoEl.setAttribute('muted', 'true')
+    videoEl.setAttribute('autoplay', 'true')
+    videoEl.setAttribute('playsinline', 'true')
     
-    // Tentar play imediatamente
+    // Função para tentar play com múltiplas estratégias
     const tryPlay = async () => {
       try {
         videoEl.muted = true
+        videoEl.volume = 0
         await videoEl.play()
+        console.log('Video playing successfully')
       } catch (err) {
-        // Se falhar, tentar novamente quando o vídeo estiver pronto
-        videoEl.addEventListener('canplay', async () => {
+        console.log('Play failed, retrying...', err)
+        // Estratégia alternativa: simular interação do usuário
+        videoEl.addEventListener('touchstart', async () => {
           try {
             videoEl.muted = true
             await videoEl.play()
@@ -35,27 +40,46 @@ function Hero() {
       }
     }
 
-    // Tentar play em diferentes momentos
-    tryPlay()
+    // Múltiplas tentativas com delays diferentes
+    const attemptPlay = () => {
+      tryPlay()
+      setTimeout(tryPlay, 50)
+      setTimeout(tryPlay, 100)
+      setTimeout(tryPlay, 200)
+      setTimeout(tryPlay, 500)
+      setTimeout(tryPlay, 1000)
+    }
+
+    // Tentar imediatamente
+    attemptPlay()
     
-    // Tentar novamente quando carregar
-    videoEl.addEventListener('loadeddata', tryPlay, { once: true })
-    videoEl.addEventListener('canplay', tryPlay, { once: true })
-    videoEl.addEventListener('loadedmetadata', tryPlay, { once: true })
+    // Eventos de carregamento
+    videoEl.addEventListener('loadeddata', attemptPlay, { once: true })
+    videoEl.addEventListener('canplay', attemptPlay, { once: true })
+    videoEl.addEventListener('loadedmetadata', attemptPlay, { once: true })
+    videoEl.addEventListener('canplaythrough', attemptPlay, { once: true })
     
     // Tentar quando a página ficar visível
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        tryPlay()
+        attemptPlay()
       }
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
-    // Tentar após um pequeno delay para mobile
-    setTimeout(tryPlay, 100)
+    // Tentar quando o usuário interagir com a página
+    const handleUserInteraction = () => {
+      attemptPlay()
+      document.removeEventListener('touchstart', handleUserInteraction)
+      document.removeEventListener('click', handleUserInteraction)
+    }
+    document.addEventListener('touchstart', handleUserInteraction)
+    document.addEventListener('click', handleUserInteraction)
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      document.removeEventListener('touchstart', handleUserInteraction)
+      document.removeEventListener('click', handleUserInteraction)
     }
   }, [])
   return (
